@@ -37,13 +37,13 @@ public class MainActivity extends Activity implements LocationReceivable {
 	@SuppressWarnings("deprecation") 
 	private AbsoluteLayout contentView = null;
 	private BroadcastReceiver poiBroadcastReceiver = null;
-	private TextView t = null; 
+	public static TextView t = null;  
 	private static Handler handler = new Handler();
 	private static Runnable r = new Runnable() {
 		public void run() { 
 			calc();
 		} 
-	};		
+	};
 	
 	private static float val = 0.0f;
 	
@@ -87,7 +87,7 @@ public class MainActivity extends Activity implements LocationReceivable {
 			}
 		}; 
 		registerReceiver(poiBroadcastReceiver, new IntentFilter(PoiServiceFH.POI_LIST_LOADED)); 
-    } 
+    }  
     
     
     private static void calc() {
@@ -95,7 +95,7 @@ public class MainActivity extends Activity implements LocationReceivable {
 			public void run() { 
 				for(POI p : POI.findAll()) {
 					AbsoluteLayout.LayoutParams lp = (AbsoluteLayout.LayoutParams)p.getView().getLayoutParams();
-					lp.x = (int)val;
+					lp.x = (int)val; 
 					p.getView().setLayoutParams(lp); 
 				} 
 			}
@@ -104,7 +104,7 @@ public class MainActivity extends Activity implements LocationReceivable {
     
     
     private void poiListReceived() {
-        draw();        
+        draw();   
         unregisterReceiver(poiBroadcastReceiver); 
         // final TextView view = (TextView)findViewById(R.id.myLocationText);
         SensorManager sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE); 
@@ -117,7 +117,7 @@ public class MainActivity extends Activity implements LocationReceivable {
 				;
 			} 
 		}; 
-        sm.registerListener(listener, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_UI);     	
+        sm.registerListener(listener, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);      	
     }
     
     
@@ -130,8 +130,8 @@ public class MainActivity extends Activity implements LocationReceivable {
     	int i = 1; 
     	for(POI p : all) { 
     		DefaultPOIView t = new DefaultPOIView(this);   
-    		t.setText(p.getName() + " - " + p.getLatitude() + " - " + p.getLongitude());
-    		p.setView(t);  
+    		//t.setText(p.getName() + " - " + p.getLatitude() + " - " + p.getLongitude());
+    		p.setView(t);   
     		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(150, 100, 0, 15 * i);
     		contentView.addView(t, lp);
     		i++; 

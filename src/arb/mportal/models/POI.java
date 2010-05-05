@@ -1,9 +1,9 @@
 package arb.mportal.models;
 
 import java.util.ArrayList;
-
 import java.util.List;
 
+import android.view.View;
 import android.widget.TextView;
 
 public class POI {
@@ -11,7 +11,7 @@ public class POI {
 	private String name = "";
 	private float longitude = 0;
 	private float latitude = 0; 
-	private TextView view = null;
+	private View view = null;  
 	
 	private static List<POI> all = new ArrayList<POI>(); 
 	
@@ -53,10 +53,10 @@ public class POI {
 	public void setLatitude(float latitude) {
 		this.latitude = latitude;
 	}
-	public TextView getView() {
+	public View getView() {
 		return view;
 	}
-	public void setView(TextView view) {
+	public void setView(View view) {
 		this.view = view;
 	}	
 

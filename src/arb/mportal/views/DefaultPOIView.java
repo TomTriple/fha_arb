@@ -5,14 +5,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.TextView;
+import arb.mportal.MainActivity;
 import arb.mportal.R;
 
 
-public class DefaultPOIView extends TextView implements View.OnTouchListener { 
+public class DefaultPOIView extends View implements View.OnTouchListener { 
 
 	
 	private class TouchStateClosed implements ITouchState { 
@@ -46,7 +45,8 @@ public class DefaultPOIView extends TextView implements View.OnTouchListener {
 
 	
 	
-	protected ITouchState currentState = null;  
+	protected ITouchState currentState = null;
+	protected boolean touchDown = false;
 	protected static ITouchState STATE_CLOSED = null;
 	protected static ITouchState STATE_OPENED = null; 
 	private static Paint p = new Paint();
@@ -63,20 +63,29 @@ public class DefaultPOIView extends TextView implements View.OnTouchListener {
 		STATE_CLOSED = new TouchStateClosed(this);
 		STATE_OPENED = new TouchStateOpened(this);
 		setOnTouchListener(this);
-		stateTransitionTo(STATE_CLOSED); 
-		
+		stateTransitionTo(STATE_CLOSED);  
+		 
 		setDrawingCacheEnabled(true);
+		
+		
 	}
 	
 	
 	protected void stateTransitionTo(ITouchState newState) {
-		currentState = newState;
-		buildDrawingCache(); 
+		currentState = newState; 
 	}
 	
 	
 	public boolean onTouch(View v, MotionEvent e) {
-		return currentState.onTouch(v, e); 
+		if(touchDown == false) { 
+			touchDown = true; 
+			MainActivity.t.setText(String.valueOf(System.currentTimeMillis())); 
+			return currentState.onTouch(v, e);			
+		} else if(e.getAction() == MotionEvent.ACTION_UP) { 
+			touchDown = false;
+		}
+		return true;
+
 	}
 	
 	
