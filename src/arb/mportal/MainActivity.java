@@ -23,13 +23,14 @@ import android.view.Window;
 import android.widget.AbsoluteLayout;
 import android.widget.TextView;
 import arb.mportal.models.POI;
+import arb.mportal.util.BoundingBox;
 import arb.mportal.views.DefaultPOIView;
 import arb.services.PoiServiceFH;
 
 
 
 public class MainActivity extends Activity implements LocationReceivable { 
-
+ 
 
 	private LocationManager lm = null;
 	private LocationListenerImpl locationListener = null;
@@ -67,7 +68,7 @@ public class MainActivity extends Activity implements LocationReceivable {
         contentView.addView(t, new ViewGroup.LayoutParams(h, w));        
         
         //setContentView(R.layout.main);
-        setContentView(contentView);   
+        setContentView(contentView); 
         
         // daheim: 47.768924832344055 12.081044912338257 
         
@@ -139,12 +140,61 @@ public class MainActivity extends Activity implements LocationReceivable {
     }
     
     
+    private void test(Location location, double brng, double dist) {
+    	final double R = 6371;  
+    	double lat1 = Math.toRadians(12.081044912338257);  
+    	double lon1 = Math.toRadians(47.768924832344055); 
+
+        dist = dist / R;   
+    	brng = Math.toRadians(brng);   
+
+    	double lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist) + Math.cos(lat1) * Math.sin(dist) * Math.cos(brng));
+    	double lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(dist) * Math.cos(lat1), Math.cos(dist) - Math.sin(lat1) * Math.sin(lat2));
+    	lon2 = (lon2 + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
+
+    	String s = "lat: " + Math.toDegrees(lat2) + " / lon: " + Math.toDegrees(lon2);  
+
+    	System.out.println(""); 
+
+    }
+    
     
     public void receiveNewLocation(Location loc) {
         TextView t = (TextView)findViewById(R.id.myLocationText);
-        t.setText("Pos: " + loc.getLatitude() + " / " + loc.getLongitude()); 
+        // t.setText("Pos: " + loc.getLatitude() + " / " + loc.getLongitude());  
+        
+        test(loc, 0, 0.25);
+        
+        System.exit(-1); 
+        
+        /*JavaScript:  	
+
+        	var lat2 = Math.asin( Math.sin(lat1)*Math.cos(d/R) + Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
+        	var lon2 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1), Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
+		*/
+        	
+        
+                
+         
+        
+        
+        //BoundingBox bb = BoundingBox.getDefault(loc, 500.0); 
+        //Location l1 = bb.getLocation1();  
+        //Location l2 = bb.getLocation2();   
+        
+        // lat: 110618.97 
+        // long: 108874.945 
+        
+        /* 
+        Location l = new Location(loc); 
+        l.setLongitude(l.getLongitude() - 1); 
+        String d = loc.distanceTo(l)+"";
+        
+        System.out.println(""); 
+        */
+        
     	//Log.i("location", loc.toString());  
-    	//System.out.println("Loc: " + loc);
+    	//System.out.println("Loc: " + loc); 
     }
     
     
