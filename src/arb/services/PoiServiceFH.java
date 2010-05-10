@@ -1,16 +1,14 @@
 package arb.services;
 
 import java.io.InputStream;
-
-
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import android.app.Service;
@@ -22,14 +20,18 @@ import arb.mportal.util.L;
 
 
 public class PoiServiceFH extends Service { 
-	  
+
 	public static final String POI_LIST_LOADED = "poi_list_loaded"; 
 	
 	@Override   
 	public void onStart(Intent i, int startId) { 
 		
 		super.onStart(i, startId); 
-		String u = "http://www.hs-augsburg.de/~thoefer/data.txt";
+		//String u = "http://www.hs-augsburg.de/~thoefer/data.txt"; 
+		String u = "http://studwww.multimedia.hs-augsburg.de:3000/middleware?" + i.getStringExtra("params");
+
+		L.i(u); 
+		
 		try {
 			URL url = new URL(u); 
 			HttpURLConnection c = (HttpURLConnection)url.openConnection();
@@ -59,24 +61,11 @@ public class PoiServiceFH extends Service {
 				float lat = Float.parseFloat(node.getAttribute("lat")); 
 				float lon = Float.parseFloat(node.getAttribute("long")); 
 				p.setLatitude(lat);  
-				p.setLongitude(lon);  
+				p.setLongitude(lon); 
 				NodeList ch = node.getElementsByTagName("tag"); 
 				for(int j = 0; j < ch.getLength(); j++) { 
 					Element tag = (Element)ch.item(j);
-
-					if(tag.getAttribute("k").equals("name")) { 
-						Log.i("test", tag.getAttribute("v")); 
-						String name = tag.getAttribute("v");  
-						p.setName(name);
-					}
-/* 
-					Element child = (Element)c.item(j); 
-					if(child.getAttribute("k") == "name") {
-						String name = child.getAttribute("v"); 
-						p.setName(name);
-						break;
-					}
-*/ 					
+					p.addTag(tag.getAttribute("k"), tag.getAttribute("v"));  					
 				}     
 			}
 		} catch(Exception e) {

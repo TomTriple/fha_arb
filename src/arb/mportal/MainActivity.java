@@ -3,6 +3,7 @@ package arb.mportal;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -52,7 +53,7 @@ public class MainActivity extends Activity implements LocationReceivable {
     public void onCreate(Bundle icicle) { 
     	
         super.onCreate(icicle);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);   
+        requestWindowFeature(Window.FEATURE_NO_TITLE);  
 
         int h = ViewGroup.LayoutParams.FILL_PARENT; 
         int w = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -74,13 +75,11 @@ public class MainActivity extends Activity implements LocationReceivable {
         
         //ArbSurface surface = (ArbSurface)findViewById(R.id.surface); 
         //surface.setCreationCallbacks(this); 
-
+ 
         locationListener = new LocationListenerImpl(this);  
-        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1, locationListener);
+        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE); 
+        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, locationListener);
 
-        // service starten 
-        startService(new Intent(this, PoiServiceFH.class));
         poiBroadcastReceiver = new BroadcastReceiver() {
 			@Override 
 			public void onReceive(Context context, Intent intent) {
@@ -103,98 +102,65 @@ public class MainActivity extends Activity implements LocationReceivable {
 		}); 
     }
     
-    
-    private void poiListReceived() {
-        draw();   
+
+    private void poiListReceived() { 
+        draw(); 
         unregisterReceiver(poiBroadcastReceiver); 
         // final TextView view = (TextView)findViewById(R.id.myLocationText);
         SensorManager sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE); 
         SensorEventListener listener = new SensorEventListener() {
 			public void onSensorChanged(SensorEvent e) {
-				val = e.values[0];  
+				val = e.values[0];
 				new Thread(r).start(); 
 			}
 			public void onAccuracyChanged(Sensor arg0, int arg1) {
 				;
-			} 
+			}  
 		}; 
         sm.registerListener(listener, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);      	
-    }
+    } 
     
     
     
     @SuppressWarnings("deprecation") 
 	private void draw() { 
+
     	List<POI> all = POI.findAll();
     	int w = ViewGroup.LayoutParams.WRAP_CONTENT;
     	int h = ViewGroup.LayoutParams.FILL_PARENT;
     	int i = 1; 
     	for(POI p : all) { 
-    		DefaultPOIView t = new DefaultPOIView(this);   
+    		DefaultPOIView t = new DefaultPOIView(this); 
     		//t.setText(p.getName() + " - " + p.getLatitude() + " - " + p.getLongitude());
-    		p.setView(t);   
+    		p.setView(t);
+    		// t.setModel(p); 
     		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(150, 100, 0, 15 * i);
-    		contentView.addView(t, lp);
+    		contentView.addView(t, lp); 
     		i++; 
     	}
     }
-    
-    
-    private void test(Location location, double brng, double dist) {
-    	final double R = 6371;  
-    	double lat1 = Math.toRadians(12.081044912338257);  
-    	double lon1 = Math.toRadians(47.768924832344055); 
 
-        dist = dist / R;   
-    	brng = Math.toRadians(brng);   
 
-    	double lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist) + Math.cos(lat1) * Math.sin(dist) * Math.cos(brng));
-    	double lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(dist) * Math.cos(lat1), Math.cos(dist) - Math.sin(lat1) * Math.sin(lat2));
-    	lon2 = (lon2 + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
-
-    	String s = "lat: " + Math.toDegrees(lat2) + " / lon: " + Math.toDegrees(lon2);  
-
-    	System.out.println(""); 
-
-    }
-    
-    
-    public void receiveNewLocation(Location loc) {
+    public void receiveNewLocation(Location loc) { 
         TextView t = (TextView)findViewById(R.id.myLocationText);
-        // t.setText("Pos: " + loc.getLatitude() + " / " + loc.getLongitude());  
+        String str = "Pos: " + loc.getLatitude() + " / " + loc.getLongitude();
+        // t.setText(str); 
         
-        test(loc, 0, 0.25);
-        
-        System.exit(-1); 
-        
-        /*JavaScript:  	
+        // 48.3617902 // 10.9086766
 
-        	var lat2 = Math.asin( Math.sin(lat1)*Math.cos(d/R) + Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
-        	var lon2 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1), Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
-		*/
-        	
+
+        //loc.setLatitude(10.9086766); 
+        //loc.setLongitude(48.3617902);   
+        BoundingBox bb = new BoundingBox(loc, 0.2); 
+        // String params = bb.urlEncode();
+        Intent serviceIntent = new Intent(this, PoiServiceFH.class); 
+        serviceIntent.putExtra("params", bb.urlEncode()); 
+        startService(serviceIntent); 
         
-                
-         
+        System.out.println("");    
+
+        lm.removeUpdates(locationListener);
         
-        
-        //BoundingBox bb = BoundingBox.getDefault(loc, 500.0); 
-        //Location l1 = bb.getLocation1();  
-        //Location l2 = bb.getLocation2();   
-        
-        // lat: 110618.97 
-        // long: 108874.945 
-        
-        /* 
-        Location l = new Location(loc); 
-        l.setLongitude(l.getLongitude() - 1); 
-        String d = loc.distanceTo(l)+"";
-        
-        System.out.println(""); 
-        */
-        
-    	//Log.i("location", loc.toString());  
-    	//System.out.println("Loc: " + loc); 
     }
     
     

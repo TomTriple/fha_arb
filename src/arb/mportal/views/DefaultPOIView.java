@@ -7,6 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import arb.mportal.MainActivity;
 import arb.mportal.R;
 
@@ -23,6 +25,10 @@ public class DefaultPOIView extends View implements View.OnTouchListener {
 			c.drawBitmap(bc, 0,0,p);
 		}
 		public boolean onTouch(View v, MotionEvent event) {
+			LayoutParams l = this.v.getLayoutParams();
+			l.width = 170;
+			l.height = 100; 
+			this.v.setLayoutParams(l); 	 		
 			this.v.stateTransitionTo(DefaultPOIView.STATE_OPENED); 
 			return true;
 		}
@@ -38,6 +44,10 @@ public class DefaultPOIView extends View implements View.OnTouchListener {
 			c.drawBitmap(bo, 0,0,p);  
 		}
 		public boolean onTouch(View v, MotionEvent event) {
+			LayoutParams l = this.v.getLayoutParams();
+			l.width = 170;
+			l.height = 42;
+			this.v.setLayoutParams(l); 			
 			this.v.stateTransitionTo(DefaultPOIView.STATE_CLOSED);  
 			return true; 
 		}
@@ -55,19 +65,18 @@ public class DefaultPOIView extends View implements View.OnTouchListener {
 	
 	 
 	public DefaultPOIView(Context c) {
-		super(c); 
-		
-		bo = BitmapFactory.decodeResource(getResources(), R.drawable.arb_background_on);
-		bc = BitmapFactory.decodeResource(getResources(), R.drawable.arb_background);
+		super(c);  
+
+		bo = BitmapFactory.decodeResource(getResources(), R.drawable.arb_big);
+		bc = BitmapFactory.decodeResource(getResources(), R.drawable.arb_small);
 		
 		STATE_CLOSED = new TouchStateClosed(this);
 		STATE_OPENED = new TouchStateOpened(this);
-		setOnTouchListener(this);
+		setOnTouchListener(this); 
+		setLayoutParams(new LayoutParams(170, 42)); 
 		stateTransitionTo(STATE_CLOSED);  
 		 
 		setDrawingCacheEnabled(true);
-		
-		
 	}
 	
 	
