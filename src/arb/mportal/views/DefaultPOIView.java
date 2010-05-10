@@ -59,8 +59,8 @@ public class DefaultPOIView extends View implements View.OnTouchListener {
 	protected boolean touchDown = false;
 	protected static ITouchState STATE_CLOSED = null;
 	protected static ITouchState STATE_OPENED = null; 
-	private static Paint p = new Paint();
-	private static Bitmap bc = null;
+	private static Paint p = new Paint(); 
+	private static Bitmap bc = null; 
 	private static Bitmap bo = null;	
 	
 	 
@@ -73,7 +73,7 @@ public class DefaultPOIView extends View implements View.OnTouchListener {
 		STATE_CLOSED = new TouchStateClosed(this);
 		STATE_OPENED = new TouchStateOpened(this);
 		setOnTouchListener(this); 
-		setLayoutParams(new LayoutParams(170, 42)); 
+		setLayoutParams(new LayoutParams(170, 41)); 
 		stateTransitionTo(STATE_CLOSED);  
 		 
 		setDrawingCacheEnabled(true);
