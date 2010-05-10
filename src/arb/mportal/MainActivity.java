@@ -32,7 +32,8 @@ import arb.services.PoiServiceFH;
 
 public class MainActivity extends Activity implements LocationReceivable { 
  
-
+	private boolean initial = true; 
+	private Location currentLocation = null;
 	private LocationManager lm = null;
 	private LocationListenerImpl locationListener = null;
 	private Camera camera = null; 
@@ -67,7 +68,7 @@ public class MainActivity extends Activity implements LocationReceivable {
         t = new TextView(this); 
         t.setText("hallo"); 
         contentView.addView(t, new ViewGroup.LayoutParams(h, w));        
-        
+
         //setContentView(R.layout.main);
         setContentView(contentView); 
         
@@ -77,7 +78,7 @@ public class MainActivity extends Activity implements LocationReceivable {
         //surface.setCreationCallbacks(this); 
  
         locationListener = new LocationListenerImpl(this);  
-        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE); 
+        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);  
         lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, locationListener);
 
         poiBroadcastReceiver = new BroadcastReceiver() {
@@ -87,12 +88,12 @@ public class MainActivity extends Activity implements LocationReceivable {
 			}
 		}; 
 		registerReceiver(poiBroadcastReceiver, new IntentFilter(PoiServiceFH.POI_LIST_LOADED)); 
-    }  
+    }
     
     
     private static void calc() {
     	handler.post(new Runnable() {
-			public void run() { 
+			public void run() {
 				for(POI p : POI.findAll()) {
 					AbsoluteLayout.LayoutParams lp = (AbsoluteLayout.LayoutParams)p.getView().getLayoutParams();
 					lp.x = (int)val; 
@@ -130,37 +131,39 @@ public class MainActivity extends Activity implements LocationReceivable {
     	int h = ViewGroup.LayoutParams.FILL_PARENT;
     	int i = 1; 
     	for(POI p : all) { 
-    		DefaultPOIView t = new DefaultPOIView(this); 
-    		//t.setText(p.getName() + " - " + p.getLatitude() + " - " + p.getLongitude());
-    		p.setView(t);
-    		// t.setModel(p); 
-    		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(150, 100, 0, 15 * i);
-    		contentView.addView(t, lp); 
+    		p.setDistance(currentLocation.distanceTo(p.getLocation()));  
+    		DefaultPOIView t = new DefaultPOIView(this, p); 
+    		p.setView(t); 
+    		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(150, 100, 0, 50 * i);
+    		contentView.addView(t, lp);  
     		i++; 
     	}
     }
 
 
-    public void receiveNewLocation(Location loc) { 
-        TextView t = (TextView)findViewById(R.id.myLocationText);
-        String str = "Pos: " + loc.getLatitude() + " / " + loc.getLongitude();
-        // t.setText(str); 
-        
-        // 48.3617902 // 10.9086766
-
-
-        //loc.setLatitude(10.9086766); 
-        //loc.setLongitude(48.3617902);   
-        BoundingBox bb = new BoundingBox(loc, 0.2); 
-        // String params = bb.urlEncode();
-        Intent serviceIntent = new Intent(this, PoiServiceFH.class); 
-        serviceIntent.putExtra("params", bb.urlEncode()); 
-        startService(serviceIntent); 
-        
-        System.out.println("");    
-
-        lm.removeUpdates(locationListener);
-        
+    public void receiveNewLocation(Location loc) {
+    	currentLocation = loc;
+    	
+    	if(initial) {
+    		initial = false;
+	        TextView t = (TextView)findViewById(R.id.myLocationText);
+	        String str = "Pos: " + loc.getLatitude() + " / " + loc.getLongitude();
+	        // t.setText(str); 
+	        
+	        // 48.3617902 // 10.9086766
+	
+	
+	        //loc.setLatitude(10.9086766); 
+	        //loc.setLongitude(48.3617902);
+	        BoundingBox bb = new BoundingBox(loc, 0.35);  
+	        // String params = bb.urlEncode();
+	        Intent serviceIntent = new Intent(this, PoiServiceFH.class); 
+	        serviceIntent.putExtra("params", bb.urlEncode()); 
+	        startService(serviceIntent); 
+	        
+	        System.out.println("");
+	        //lm.removeUpdates(locationListener);
+    	}
     }
     
     

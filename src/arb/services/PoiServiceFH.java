@@ -65,7 +65,11 @@ public class PoiServiceFH extends Service {
 				NodeList ch = node.getElementsByTagName("tag"); 
 				for(int j = 0; j < ch.getLength(); j++) { 
 					Element tag = (Element)ch.item(j);
-					p.addTag(tag.getAttribute("k"), tag.getAttribute("v"));  					
+					if(tag.getAttribute("k").equals("name")) {
+						p.setName(tag.getAttribute("v"));  
+					} else {
+						p.addTag(tag.getAttribute("k"), tag.getAttribute("v"));						
+					}
 				}     
 			}
 		} catch(Exception e) {

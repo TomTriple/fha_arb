@@ -5,14 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.location.Location;
 import android.view.View;
-import android.widget.TextView;
 
 public class POI {
 	
 	private String name = "";
 	private float longitude = 0;
 	private float latitude = 0; 
+	private Location location = null;
+	private float distance = 0.0f;
 	private Map<String, String> tags = new HashMap<String, String>(); 
 	private View view = null;
 	
@@ -65,6 +67,21 @@ public class POI {
 	}
 	public void addTag(String key, String value) {
 		tags.put(key, value);  
+	}
+	public Map<String, String> getTags() {
+		return tags;  
+	}
+	public void setDistance(float distance) {
+		this.distance = distance;
+	}
+	public float getDistance() {
+		return distance; 
+	}
+	public Location getLocation()  {
+		Location l = new Location("");
+		l.setLatitude(getLatitude());
+		l.setLongitude(getLongitude()); 
+		return l; 
 	}
 
 	
