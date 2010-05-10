@@ -1,9 +1,6 @@
 package arb.mportal;
 
-import java.util.List;
-
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,30 +22,30 @@ import android.widget.AbsoluteLayout;
 import android.widget.TextView;
 import arb.mportal.models.POI;
 import arb.mportal.util.BoundingBox;
+import arb.mportal.util.IEach;
 import arb.mportal.views.DefaultPOIView;
 import arb.services.PoiServiceFH;
 
 
 
-public class MainActivity extends Activity implements LocationReceivable { 
- 
+@SuppressWarnings("deprecation")  
+public class MainActivity extends Activity implements LocationReceivable {
+	
 	private boolean initial = true; 
 	private Location currentLocation = null;
 	private LocationManager lm = null;
 	private LocationListenerImpl locationListener = null;
 	private Camera camera = null; 
-	@SuppressWarnings("deprecation") 
 	private AbsoluteLayout contentView = null;
 	private BroadcastReceiver poiBroadcastReceiver = null;
 	public static TextView t = null;  
 	private static Handler handler = new Handler();
 	private static Runnable r = new Runnable() {
-		public void run() { 
+		public void run() {
 			calc();
-		} 
-	};
-	
-	private static float val = 0.0f;
+		}
+	}; 
+	private static float zRot = 0.0f;
 	
 	
     public void onCreate(Bundle icicle) { 
@@ -66,7 +63,7 @@ public class MainActivity extends Activity implements LocationReceivable {
         contentView.addView(s, h, w); 
 
         t = new TextView(this); 
-        t.setText("hallo"); 
+        //t.setText("hallo"); 
         contentView.addView(t, new ViewGroup.LayoutParams(h, w));        
 
         //setContentView(R.layout.main);
@@ -94,11 +91,14 @@ public class MainActivity extends Activity implements LocationReceivable {
     private static void calc() {
     	handler.post(new Runnable() {
 			public void run() {
-				for(POI p : POI.findAll()) {
-					AbsoluteLayout.LayoutParams lp = (AbsoluteLayout.LayoutParams)p.getView().getLayoutParams();
-					lp.x = (int)val; 
-					p.getView().setLayoutParams(lp); 
-				} 
+				POI.eachPoi(new IEach() {
+					public void each(Object item, int index) {
+						POI p = (POI)item; 
+						AbsoluteLayout.LayoutParams lp = (AbsoluteLayout.LayoutParams)p.getView().getLayoutParams();
+						lp.x = (int)zRot; 
+						p.getView().setLayoutParams(lp);
+					}
+				});
 			}
 		}); 
     }
@@ -111,7 +111,7 @@ public class MainActivity extends Activity implements LocationReceivable {
         SensorManager sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE); 
         SensorEventListener listener = new SensorEventListener() {
 			public void onSensorChanged(SensorEvent e) {
-				val = e.values[0];
+				zRot = e.values[0]; 
 				new Thread(r).start(); 
 			}
 			public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -124,30 +124,27 @@ public class MainActivity extends Activity implements LocationReceivable {
     
     
     @SuppressWarnings("deprecation") 
-	private void draw() { 
-
-    	List<POI> all = POI.findAll();
-    	int w = ViewGroup.LayoutParams.WRAP_CONTENT;
-    	int h = ViewGroup.LayoutParams.FILL_PARENT;
-    	int i = 1; 
-    	for(POI p : all) { 
-    		p.setDistance(currentLocation.distanceTo(p.getLocation()));  
-    		DefaultPOIView t = new DefaultPOIView(this, p); 
-    		p.setView(t); 
-    		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(150, 100, 0, 50 * i);
-    		contentView.addView(t, lp);  
-    		i++; 
-    	}
+	private void draw() {
+    	POI.eachPoi(new IEach() { 
+			public void each(Object item, int index) {
+				POI p = (POI)item;
+	    		p.setDistance(currentLocation.distanceTo(p.getLocation()));
+	    		DefaultPOIView t = new DefaultPOIView(MainActivity.this, p);   
+	    		p.setView(t);  
+	    		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(170, 42, 0, 80 * index);
+	    		contentView.addView(t, lp);				
+			}
+		});
     }
 
 
     public void receiveNewLocation(Location loc) {
     	currentLocation = loc;
-    	
+
     	if(initial) {
     		initial = false;
 	        TextView t = (TextView)findViewById(R.id.myLocationText);
-	        String str = "Pos: " + loc.getLatitude() + " / " + loc.getLongitude();
+	        //String str = "Pos: " + loc.getLatitude() + " / " + loc.getLongitude();
 	        // t.setText(str); 
 	        
 	        // 48.3617902 // 10.9086766

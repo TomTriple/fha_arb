@@ -7,6 +7,9 @@ import java.util.Map;
 
 import android.location.Location;
 import android.view.View;
+import android.widget.AbsoluteLayout;
+import arb.mportal.util.IEach;
+import arb.mportal.views.DefaultPOIView;
 
 public class POI {
 	
@@ -16,7 +19,7 @@ public class POI {
 	private Location location = null;
 	private float distance = 0.0f;
 	private Map<String, String> tags = new HashMap<String, String>(); 
-	private View view = null;
+	private DefaultPOIView view = null;
 	
 	private static List<POI> all = new ArrayList<POI>(); 
 	
@@ -59,10 +62,10 @@ public class POI {
 	public void setLatitude(float latitude) {
 		this.latitude = latitude;
 	}
-	public View getView() {
+	public DefaultPOIView getView() {
 		return view;
 	}
-	public void setView(View view) {
+	public void setView(DefaultPOIView view) {
 		this.view = view;
 	}
 	public void addTag(String key, String value) {
@@ -82,6 +85,69 @@ public class POI {
 		l.setLatitude(getLatitude());
 		l.setLongitude(getLongitude()); 
 		return l; 
+	}
+	
+	public String getTagStreet() {
+		return getTags().get("addr:street");
+	}
+	public String getTagHousenumber() {
+		return getTags().get("addr:housenumber");
+	}
+	public String getTagPostcode() {
+		return getTags().get("addr:postcode"); 
+	}
+	public String getTagURL() {
+		return getTags().get("url:official");
+	}
+	public String getTagDescription() {
+		return getTags().get("description"); 
+	}
+	
+	
+	public String getDescription() {
+		StringBuilder buf = new StringBuilder();
+		int lines = 5; 
+		if(getTagStreet() != null) {
+			buf.append(getTagStreet());
+		}
+		if(getTagHousenumber() != null) {
+			buf.append(" " + getTagHousenumber());
+		}
+		if(buf.toString().equals("") == false) {
+			buf.append("\n");
+			lines--;
+		}
+		if(getTagPostcode() != null) { 
+			buf.append(getTagPostcode() + "\n");
+			lines--;
+		}
+		if(getTagURL() != null && !getTagURL().equals("null") && !getTagURL().equals("")) { 
+			buf.append(getTags().get("url:official") + "\n");
+			lines--;
+		}
+		if(getTagDescription() != null && !getTagDescription().equals("null") && !getTagDescription().equals("")) {
+			buf.append(getTags().get("description") + "\n");   
+		}  
+		return buf.toString();
+	}
+	
+	public static void eachPoi(IEach each) {
+    	List<POI> all = POI.findAll();
+    	int i = 1; 
+    	for(POI p : all) { 
+    		each.each(p, i); 
+    		i++; 
+    	}		
+	}
+	
+	
+	public static void hideAll() {
+		POI.eachPoi(new IEach() {
+			public void each(Object item, int index) {
+				POI poi = (POI)item;
+				poi.getView().stateTransitionTo(DefaultPOIView.STATE_CLOSED); 
+			}
+		});
 	}
 
 	
