@@ -5,7 +5,7 @@ import android.location.LocationListener;
 import android.os.Bundle;
 
 public class LocationListenerImpl implements LocationListener {
-
+ 
 	private LocationReceivable r = null;
 	
 	public LocationListenerImpl(LocationReceivable r) {

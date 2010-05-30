@@ -1,7 +1,7 @@
 package arb.mportal.models;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +21,10 @@ public class POI {
 	private Map<String, String> tags = new HashMap<String, String>(); 
 	private DefaultPOIView view = null;
 	
-	private static List<POI> all = new ArrayList<POI>(); 
+	private static List<POI> all = new LinkedList<POI>(); 
+	
+	public POI() {
+	}
 	
 	
 	public static List<POI> findAll() {
@@ -146,7 +149,7 @@ public class POI {
 		POI.eachPoi(new IEach() {
 			public void each(Object item, int index) {
 				POI poi = (POI)item;
-				poi.getView().close();
+				poi.getView().closeLayer();
 			}
 		});
 	}

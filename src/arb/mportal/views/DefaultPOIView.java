@@ -10,153 +10,184 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import arb.mportal.MainActivity;
 import arb.mportal.R;
 import arb.mportal.models.POI;
+import arb.mportal.util.L;
 
 
+/*
+ * Main view that displays a so called point of interest-overlay. Internally this class works according to 
+ * the state pattern and uses inner classes to represent a state. 
+ */
 public class DefaultPOIView extends LinearLayout implements View.OnTouchListener { 
 
-	
+	/*
+	 * Inner class that represents the state of a closed Layer. Gets delegated touch events 
+	 * from the main view. 
+	 */
 	private class TouchStateClosed implements ITouchState { 
+		
 		private DefaultPOIView v = null;
-		public TouchStateClosed(DefaultPOIView v) {
-			this.v = v; 
+		private TextView titleText = null;
+		private POI poi = null;
+		
+		public TouchStateClosed(DefaultPOIView v, POI poi) {
+			this.v = v;
+			this.poi = poi;
+			titleText = new TextView(getContext()); 
+			titleText.setTextColor(Color.WHITE); 
+			titleText.setTextSize(11); 
+			titleText.setPadding(50, 6, 0, 0);  
+			setTitle(poi.getName().toUpperCase()+"\n"+(int)poi.getDistance()+" m"); 
 		} 
-		public void draw(Canvas c) {    
-			//c.drawBitmap(bc, 0,0,p);
+		public void draw(Canvas c) {
+			c.drawBitmap(bc, 0,0,p);
+		} 
+		public boolean onTouch(View v, MotionEvent event) {
+			openLayer(); 
+			return true; 
+		}
+		public void setTitle(String title) {
+			titleText.setText(title); 
+		}
+		public void stateTransitionTo() {
+			v.addView(titleText, new AbsoluteLayout.LayoutParams(170, 42, 0, 0)); 
+		}
+		public void setDistance(float dist) { 
+			setTitle(poi.getName().toUpperCase()+"\n"+(int)dist+" m");
+		}		
+	}
+	
+	
+	/*
+	 * Inner class that represents the state of an opened Layer. Gets delegated touch events  
+	 * from the main view. 
+	 */	
+	private class TouchStateOpened implements ITouchState { 
+
+		private DefaultPOIView v = null; 
+		private TextView titleText = null;
+		private TextView dataText = null; 
+		private POI poi = null;
+		
+		public TouchStateOpened(DefaultPOIView v, POI poi) {
+			this.v = v;
+			this.poi = poi;
+			titleText = new TextView(getContext());  
+			titleText.setTextColor(Color.WHITE); 
+			titleText.setTextSize(11);
+			titleText.setPadding(50, 6, 0, 0);
+
+			dataText = new TextView(getContext()); 
+			dataText.setTextColor(Color.WHITE); 
+			dataText.setTextSize(11); 
+			dataText.setPadding(6, 6, 6, 6);
+			
+			setTitle(poi.getName().toUpperCase()+"\n"+(int)poi.getDistance()+" m"); 
+			setData(poi.getDescription());
+		}
+		public void draw(Canvas c) {
+			c.drawBitmap(bo, 0,0,p);
 		}
 		public boolean onTouch(View v, MotionEvent event) {
-			AbsoluteLayout.LayoutParams l = (AbsoluteLayout.LayoutParams)this.v.getLayoutParams();
-			l.width = 170;
-			l.height = 100;
-			this.v.setLayoutParams(l);
-			this.v.stateTransitionTo(this.v.stateOpened); 
-			return true;
-		}
-	}
-	
-	
-	private class TouchStateOpened implements ITouchState { 
-		private DefaultPOIView v = null; 
-		public TouchStateOpened(DefaultPOIView v) {
-			this.v = v; 
+			closeLayer();   
+			return true;  
 		} 
-		public void draw(Canvas c) {       
-			//c.drawBitmap(bo, 0,0,p);
+		
+		public void stateTransitionTo() {
+			v.addView(titleText, new AbsoluteLayout.LayoutParams(170, 42, 0, 0)); 
+			v.addView(dataText, new AbsoluteLayout.LayoutParams(170, 58, 0, 0));			
 		}
-		public boolean onTouch(View v, MotionEvent event) {  
-			AbsoluteLayout.LayoutParams l = (AbsoluteLayout.LayoutParams)this.v.getLayoutParams();
-			l.width = 170;
-			l.height = 42;
-			this.v.setLayoutParams(l);
-			this.v.stateTransitionTo(this.v.stateClosed);  
-			return true; 
-		} 
+		
+		public void setTitle(String title) {
+			titleText.setText(title); 
+		}
+		
+		public void setData(String data) {
+			dataText.setText(data);
+		}
+		
+		public void setDistance(float dist) {
+			setTitle(poi.getName().toUpperCase()+"\n"+(int)dist+" m");
+		}
 	}
 
 	
-	protected TextView titleText = null;
-	protected TextView data = null; 
-	 
 	protected ITouchState currentState = null;
 	protected boolean touchDown = false;
-	public ITouchState stateClosed = null; 
-	public ITouchState stateOpened = null; 
-	private static Paint p = new Paint(); 
-	private static Bitmap bc = null; 
-	private static Bitmap bo = null; 
+	protected ITouchState stateClosed = null; 
+	protected ITouchState stateOpened = null; 
 	
-	 
+	// Inner classes have references to these static attributes 
+	protected static Bitmap bo = null;
+	protected static Bitmap bc = null;
+	protected static Paint p = new Paint();
+	
 	public DefaultPOIView(Context c, POI poi) {
 		super(c);
-		setOrientation(VERTICAL);  
-
-		bo = BitmapFactory.decodeResource(getResources(), R.drawable.arb_big);
-		bc = BitmapFactory.decodeResource(getResources(), R.drawable.arb_small);
-
-		titleText = new TextView(getContext()) { 
-			@Override
-			public void onDraw(Canvas c) {
-				c.drawBitmap(bc, 0, 0, p);
-				super.onDraw(c); 
-			}
-		}; 
-		titleText.setTextColor(Color.WHITE); 
-		titleText.setTextSize(11); 
-		setTitle(poi.getName().toUpperCase()+"\n"+(int)poi.getDistance()+" m");     
-		titleText.setPadding(50, 6, 0, 0); 
-
-		data = new TextView(getContext()) {
-			@Override
-			public void onDraw(Canvas c) {
-				c.drawBitmap(bo, 0, 0, p);  
-				super.onDraw(c); 
-			}
-		};
-		data.setTextColor(Color.WHITE); 
-		data.setTextSize(11); 
-		data.setPadding(6, 6, 6, 6);
-		data.setText(poi.getDescription()); 
-		
-		addView(titleText, new AbsoluteLayout.LayoutParams(170, 42, 0, 0)); 
-		addView(data, new AbsoluteLayout.LayoutParams(170, 58, 0, 0));
-		
-		
-		stateClosed = new TouchStateClosed(this);
-		stateOpened = new TouchStateOpened(this);
+		// needed to perform onDraw() in a LinearLayout subclass 
+		setWillNotDraw(false); 
+		setOrientation(VERTICAL);
+		stateClosed = new TouchStateClosed(this, poi);
+		stateOpened = new TouchStateOpened(this, poi);
 		setOnTouchListener(this);
-		setLayoutParams(new ViewGroup.LayoutParams(170, 42));   
-		stateTransitionTo(stateClosed);  
+		setLayoutParams(new AbsoluteLayout.LayoutParams(170, 42, 0, 0)); 
+		if(bo == null) {
+			bo = BitmapFactory.decodeResource(getResources(), R.drawable.arb_big);			
+		}
+		if(bc == null) {
+			bc = BitmapFactory.decodeResource(getResources(), R.drawable.arb_small); 			
+		} 
+		closeLayer();  
 	}
-	
+
 	
 	public void stateTransitionTo(ITouchState newState) {
-		currentState = newState; 
+		currentState = newState;
+		currentState.stateTransitionTo(); 
 	}
 	
 	
-	public void close() {
+	public void closeLayer() {
+		AbsoluteLayout.LayoutParams l = (AbsoluteLayout.LayoutParams)getLayoutParams();
+		l.width = 170;
+		l.height = 42;
+		setLayoutParams(l);
 		stateTransitionTo(stateClosed); 
+	} 
+	
+	
+	public void openLayer() {
+		AbsoluteLayout.LayoutParams l = (AbsoluteLayout.LayoutParams)getLayoutParams();
+		l.width = 170;
+		l.height = 100; 
+		setLayoutParams(l);		
+		stateTransitionTo(stateOpened);  
 	}
 	
 	
 	public boolean onTouch(View v, MotionEvent e) {
 		if(touchDown == false) { 
-			touchDown = true; 
-			// MainActivity.t.setText(String.valueOf(System.currentTimeMillis())); 
+			touchDown = true;
+			removeAllViews(); 
 			return currentState.onTouch(v, e);			
 		} else if(e.getAction() == MotionEvent.ACTION_UP) { 
 			touchDown = false;
 		}
 		return true; 
 	} 
-	
+		
 	
 	@Override  
-	public void onDraw(Canvas c) { 
-		super.onDraw(c);
-		currentState.draw(c);
+	public void onDraw(Canvas c) {  
+		super.onDraw(c); 
+		currentState.draw(c); 
 	}
 	
 	
-	@Override
-	public void draw(Canvas c) {
-		super.draw(c);  
-		/*Bitmap cache = getDrawingCache();
-		if(cache != null) 
-			c.drawBitmap(cache, 0, 0, p);*/   
-	}
-	
-	
-	public void setTitle(String text) { 
-		titleText.setText(text);
-	}
-	
-	public void setDistance() {
-		;
+	public void setDistance(float dist) {
+		currentState.setDistance(dist); 
 	}
 }

@@ -1,6 +1,7 @@
 package arb.mportal;
 
 import android.app.Activity;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,9 +42,9 @@ public class MainActivity extends Activity implements LocationReceivable {
 	private BroadcastReceiver poiBroadcastReceiver = null;
 	public static TextView t = null;  
 	private static Handler handler = new Handler();
-	private static Runnable r = new Runnable() {
+	private Runnable r = new Runnable() {
 		public void run() {
-			calc();
+			onSensorValueChanged();
 		}
 	}; 
 	private static float zRot = 0.0f;
@@ -64,39 +65,40 @@ public class MainActivity extends Activity implements LocationReceivable {
         contentView.addView(s, h, w); 
 
         t = new TextView(this); 
-        //t.setText("hallo"); 
         contentView.addView(t, new ViewGroup.LayoutParams(h, w));        
 
         //setContentView(R.layout.main);
         setContentView(contentView); 
-        
+         
         // daheim: 47.768924832344055 12.081044912338257 
         
         //ArbSurface surface = (ArbSurface)findViewById(R.id.surface); 
         //surface.setCreationCallbacks(this); 
- 
+  
         locationListener = new LocationListenerImpl(this);  
         lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);  
-        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, locationListener);
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
         poiBroadcastReceiver = new BroadcastReceiver() {
 			@Override 
 			public void onReceive(Context context, Intent intent) {
 				poiListReceived();
 			}
-		}; 
+		};
 		registerReceiver(poiBroadcastReceiver, new IntentFilter(PoiServiceFH.POI_LIST_LOADED)); 
     }
     
     
-    private static void calc() {
+    private void onSensorValueChanged() {
     	handler.post(new Runnable() {
-			public void run() {
-				POI.eachPoi(new IEach() {
+			public void run() { 
+				POI.eachPoi(new IEach() { 
 					public void each(Object item, int index) {
 						POI p = (POI)item; 
 						AbsoluteLayout.LayoutParams lp = (AbsoluteLayout.LayoutParams)p.getView().getLayoutParams();
-						lp.x = (int)zRot; 
+						lp.x = (int)zRot;
+						float dist = currentLocation.distanceTo(p.getLocation());
+						p.getView().setDistance(dist);
 						p.getView().setLayoutParams(lp);
 					}
 				});
@@ -123,15 +125,14 @@ public class MainActivity extends Activity implements LocationReceivable {
     } 
     
     
-    
     @SuppressWarnings("deprecation") 
 	private void draw() {
     	POI.eachPoi(new IEach() { 
 			public void each(Object item, int index) {
 				POI p = (POI)item;
 	    		p.setDistance(currentLocation.distanceTo(p.getLocation()));
-	    		DefaultPOIView t = new DefaultPOIView(MainActivity.this, p);   
-	    		p.setView(t);  
+	    		DefaultPOIView t = new DefaultPOIView(MainActivity.this, p); 
+	    		p.setView(t);
 	    		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(170, 42, 0, 80 * index);
 	    		contentView.addView(t, lp);				
 			}
@@ -142,8 +143,8 @@ public class MainActivity extends Activity implements LocationReceivable {
     public void receiveNewLocation(Location loc) {
     	currentLocation = loc;
 
-    	if(initial) {
-    		initial = false;
+    	if(initial) { 
+    		initial = false; 
 	        TextView t = (TextView)findViewById(R.id.myLocationText);
 	        //String str = "Pos: " + loc.getLatitude() + " / " + loc.getLongitude();
 	        // t.setText(str); 
@@ -157,7 +158,7 @@ public class MainActivity extends Activity implements LocationReceivable {
 	        //System.exit(-1);
 	
 	        //loc.setLatitude(10.906298216666668); 
-	        //loc.setLongitude(48.361505866666676);
+	        //loc.setLongitude(48.361505866666676); 
 	        BoundingBox bb = new BoundingBox(loc, 0.3); 
 	        // String params = bb.urlEncode();
 	        Intent serviceIntent = new Intent(this, PoiServiceFH.class); 
