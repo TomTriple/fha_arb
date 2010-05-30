@@ -19,51 +19,37 @@ import arb.mportal.models.POI;
 import arb.mportal.util.L; 
 
 
-public class PoiServiceFH extends Service { 
+public class PoiServiceFH { 
 
-	public static final String POI_LIST_LOADED = "poi_list_loaded"; 
 	
-	@Override   
-	public void onStart(Intent i, int startId) { 
+	public static void parseXML(String params) {
+		String u = "http://studwww.multimedia.hs-augsburg.de:3000/middleware?" + params;
 		
-		super.onStart(i, startId); 
-		//String u = "http://www.hs-augsburg.de/~thoefer/data.txt"; 
-		String u = "http://studwww.multimedia.hs-augsburg.de:3000/middleware?" + i.getStringExtra("params");
-
 		L.i(u); 
 		
-		try {
-			URL url = new URL(u); 
-			HttpURLConnection c = (HttpURLConnection)url.openConnection();
-			parseXML(c.getInputStream());
-			sendBroadcast(new Intent(POI_LIST_LOADED));  
-			stopSelf(); 
-		}  catch(Exception e) {
-			;
-		}  
-	}
-	
-	
-	private void parseXML(InputStream in) {
+		URL url = null; 
+		HttpURLConnection c = null;
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
-		try {
+		try { 
+			url = new URL(u); 
+			c = (HttpURLConnection)url.openConnection();
 			DocumentBuilder b = f.newDocumentBuilder();
-			Document dom = b.parse(in); 
+			Document dom = b.parse(c.getInputStream()); 
 			Element root = dom.getDocumentElement(); 
 			NodeList nl = root.getElementsByTagName("poi");  
 			if(nl.getLength() == 0) { 
 				L.i("Fehler, keine POI´s vom Server"); 
 			} 
 			for(int i = 0; i < nl.getLength(); i++) {
-				POI p = new POI(); 
-				POI.add(p); 
 				Element node = (Element)nl.item(i); 
 				float lat = Float.parseFloat(node.getAttribute("lat")); 
 				float lon = Float.parseFloat(node.getAttribute("long")); 
-				p.setLatitude(lat);  
-				p.setLongitude(lon); 
 				NodeList ch = node.getElementsByTagName("tag"); 
-				for(int j = 0; j < ch.getLength(); j++) { 
+				POI p = new POI(); 
+				POI.add(p);
+				p.setLatitude(lat);  
+				p.setLongitude(lon);
+				for(int j = 0; j < ch.getLength(); j++) {  
 					Element tag = (Element)ch.item(j);
 					if(tag.getAttribute("k").equals("name")) {
 						p.setName(tag.getAttribute("v"));  
@@ -76,12 +62,5 @@ public class PoiServiceFH extends Service {
 			e.printStackTrace();
 		}  
 	}
-	
-	
-	@Override
-	public IBinder onBind(Intent i) {
-		return null;
-	}
-	
 	
 }

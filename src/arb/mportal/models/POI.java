@@ -37,8 +37,12 @@ public class POI {
 	}
 	
 	
+	public static int size() {
+		return all.size(); 
+	}
+	
 	public static void clear() {
-		all.clear(); 
+		all.clear();  
 	}
 
 	

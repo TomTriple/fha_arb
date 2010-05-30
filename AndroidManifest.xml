@@ -13,7 +13,6 @@
             </intent-filter> 
         </activity>  
 		 
-    <service android:enabled="true" android:name="arb.services.PoiServiceFH"></service>
 </application>
  
 
