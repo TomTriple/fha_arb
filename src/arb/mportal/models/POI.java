@@ -105,7 +105,7 @@ public class POI {
 	
 	
 	public String getDescription() {
-		StringBuilder buf = new StringBuilder();
+		StringBuffer buf = new StringBuffer();
 		int lines = 5; 
 		if(getTagStreet() != null) {
 			buf.append(getTagStreet());
@@ -131,6 +131,7 @@ public class POI {
 		return buf.toString();
 	}
 	
+	
 	public static void eachPoi(IEach each) {
     	List<POI> all = POI.findAll();
     	int i = 1; 
@@ -139,13 +140,13 @@ public class POI {
     		i++; 
     	}		
 	}
-	
-	
+
+
 	public static void hideAll() {
 		POI.eachPoi(new IEach() {
 			public void each(Object item, int index) {
 				POI poi = (POI)item;
-				poi.getView().stateTransitionTo(DefaultPOIView.STATE_CLOSED); 
+				poi.getView().close();
 			}
 		});
 	}

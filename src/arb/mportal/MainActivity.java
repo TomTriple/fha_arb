@@ -23,6 +23,7 @@ import android.widget.TextView;
 import arb.mportal.models.POI;
 import arb.mportal.util.BoundingBox;
 import arb.mportal.util.IEach;
+import arb.mportal.util.L;
 import arb.mportal.views.DefaultPOIView;
 import arb.services.PoiServiceFH;
 
@@ -116,7 +117,7 @@ public class MainActivity extends Activity implements LocationReceivable {
 			}
 			public void onAccuracyChanged(Sensor arg0, int arg1) {
 				;
-			}  
+			}
 		}; 
         sm.registerListener(listener, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);      	
     } 
@@ -149,10 +150,15 @@ public class MainActivity extends Activity implements LocationReceivable {
 	        
 	        // 48.3617902 // 10.9086766
 	
+	        // 10-28 00:29:25.404: INFO/test(10990): 48.361505866666676 - 10.906298216666668
+
+	        
+	        //L.i(loc.getLatitude() + " - " + loc.getLongitude()); 
+	        //System.exit(-1);
 	
-	        //loc.setLatitude(10.9086766); 
-	        //loc.setLongitude(48.3617902);
-	        BoundingBox bb = new BoundingBox(loc, 0.35);  
+	        //loc.setLatitude(10.906298216666668); 
+	        //loc.setLongitude(48.361505866666676);
+	        BoundingBox bb = new BoundingBox(loc, 0.3); 
 	        // String params = bb.urlEncode();
 	        Intent serviceIntent = new Intent(this, PoiServiceFH.class); 
 	        serviceIntent.putExtra("params", bb.urlEncode()); 

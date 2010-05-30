@@ -1,7 +1,6 @@
 package arb.mportal.views;
 
 import android.content.Context;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,7 +16,7 @@ import android.widget.TextView;
 import arb.mportal.MainActivity;
 import arb.mportal.R;
 import arb.mportal.models.POI;
- 
+
 
 public class DefaultPOIView extends LinearLayout implements View.OnTouchListener { 
 
@@ -33,9 +32,9 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 		public boolean onTouch(View v, MotionEvent event) {
 			AbsoluteLayout.LayoutParams l = (AbsoluteLayout.LayoutParams)this.v.getLayoutParams();
 			l.width = 170;
-			l.height = 100;  
+			l.height = 100;
 			this.v.setLayoutParams(l);
-			this.v.stateTransitionTo(DefaultPOIView.STATE_OPENED); 
+			this.v.stateTransitionTo(this.v.stateOpened); 
 			return true;
 		}
 	}
@@ -47,14 +46,14 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 			this.v = v; 
 		} 
 		public void draw(Canvas c) {       
-			//c.drawBitmap(bo, 0,0,p);  
+			//c.drawBitmap(bo, 0,0,p);
 		}
 		public boolean onTouch(View v, MotionEvent event) {  
 			AbsoluteLayout.LayoutParams l = (AbsoluteLayout.LayoutParams)this.v.getLayoutParams();
 			l.width = 170;
 			l.height = 42;
 			this.v.setLayoutParams(l);
-			this.v.stateTransitionTo(DefaultPOIView.STATE_CLOSED);  
+			this.v.stateTransitionTo(this.v.stateClosed);  
 			return true; 
 		} 
 	}
@@ -65,11 +64,11 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 	 
 	protected ITouchState currentState = null;
 	protected boolean touchDown = false;
-	public static ITouchState STATE_CLOSED = null;
-	public static ITouchState STATE_OPENED = null; 
+	public ITouchState stateClosed = null; 
+	public ITouchState stateOpened = null; 
 	private static Paint p = new Paint(); 
 	private static Bitmap bc = null; 
-	private static Bitmap bo = null;	
+	private static Bitmap bo = null; 
 	
 	 
 	public DefaultPOIView(Context c, POI poi) {
@@ -92,12 +91,12 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 		titleText.setPadding(50, 6, 0, 0); 
 
 		data = new TextView(getContext()) {
-			@Override 
+			@Override
 			public void onDraw(Canvas c) {
 				c.drawBitmap(bo, 0, 0, p);  
 				super.onDraw(c); 
 			}
-		}; 
+		};
 		data.setTextColor(Color.WHITE); 
 		data.setTextSize(11); 
 		data.setPadding(6, 6, 6, 6);
@@ -107,18 +106,21 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 		addView(data, new AbsoluteLayout.LayoutParams(170, 58, 0, 0));
 		
 		
-		STATE_CLOSED = new TouchStateClosed(this);
-		STATE_OPENED = new TouchStateOpened(this);
+		stateClosed = new TouchStateClosed(this);
+		stateOpened = new TouchStateOpened(this);
 		setOnTouchListener(this);
 		setLayoutParams(new ViewGroup.LayoutParams(170, 42));   
-		stateTransitionTo(STATE_CLOSED); 
-		
-		setDrawingCacheEnabled(true); 
+		stateTransitionTo(stateClosed);  
 	}
 	
 	
 	public void stateTransitionTo(ITouchState newState) {
 		currentState = newState; 
+	}
+	
+	
+	public void close() {
+		stateTransitionTo(stateClosed); 
 	}
 	
 	
