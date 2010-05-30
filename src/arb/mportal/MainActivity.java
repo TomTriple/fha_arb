@@ -58,7 +58,7 @@ public class MainActivity extends Activity implements LocationReceivable {
         int h = ViewGroup.LayoutParams.FILL_PARENT; 
         int w = ViewGroup.LayoutParams.WRAP_CONTENT;
         
-        contentView = new AbsoluteLayout(this);  
+        contentView = new AbsoluteLayout(this); 
          
         ArbSurface s = new ArbSurface(this);
         s.setCreationCallbacks(this); 
@@ -83,7 +83,7 @@ public class MainActivity extends Activity implements LocationReceivable {
 			@Override 
 			public void onReceive(Context context, Intent intent) {
 				poiListReceived();
-			}
+			} 
 		};
 		registerReceiver(poiBroadcastReceiver, new IntentFilter(PoiServiceFH.POI_LIST_LOADED)); 
     }
