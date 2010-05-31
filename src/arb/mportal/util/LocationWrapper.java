@@ -3,8 +3,6 @@ package arb.mportal.util;
 import android.location.Location;
 
 /**
- *  
- * @author tom
  *
  * Private class that wraps a Location-Object. The purpose of this class is to add the ability to calculate
  * a new gps-position based on a given location, a direction and a length. 

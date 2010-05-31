@@ -7,7 +7,7 @@ import android.view.SurfaceView;
 
 public class ArbSurface extends SurfaceView implements SurfaceHolder.Callback {
 
-	private MainActivity m = null;
+	private OverlayActivity m = null;
 	
 	
 	public ArbSurface(Context c) {
@@ -49,7 +49,7 @@ public class ArbSurface extends SurfaceView implements SurfaceHolder.Callback {
 	}
 	
 	
-	public void setCreationCallbacks(MainActivity m) {
+	public void setCreationCallbacks(OverlayActivity m) {
 		this.m = m;
 	}
 	

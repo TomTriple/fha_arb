@@ -1,13 +1,11 @@
 package arb.mportal.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import android.location.Location;
-import android.view.View;
-import android.widget.AbsoluteLayout;
 import arb.mportal.util.IEach;
 import arb.mportal.views.DefaultPOIView;
 
@@ -21,7 +19,7 @@ public class POI {
 	private Map<String, String> tags = new HashMap<String, String>(); 
 	private DefaultPOIView view = null;
 	
-	private static List<POI> all = new LinkedList<POI>(); 
+	private static List<POI> all = new ArrayList<POI>(); 
 	
 	public POI() {
 	}
@@ -45,6 +43,9 @@ public class POI {
 		all.clear();  
 	}
 
+	public static POI get(int index) {
+		return all.get(index); 
+	}
 	
 	
 	public String toString() {
@@ -140,7 +141,6 @@ public class POI {
 	
 	
 	public static void eachPoi(IEach each) {
-    	List<POI> all = POI.findAll();
     	int i = 1; 
     	for(POI p : all) { 
     		each.each(p, i); 
@@ -156,6 +156,17 @@ public class POI {
 				poi.getView().closeLayer();
 			}
 		});
+	}
+	
+	public String getTitle() {
+		String title = name;
+		if(title.equals(""))
+			title = getTags().get("amenity");
+		if(title.length() >= 15) {
+			return title.substring(0, 13) + "...";
+		}
+		return title;
+		  
 	}
 
 	

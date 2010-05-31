@@ -1,4 +1,4 @@
-package arb.mportal.views;
+package arb.mportal.views; 
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -39,8 +39,8 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 			titleText = new TextView(getContext()); 
 			titleText.setTextColor(Color.WHITE); 
 			titleText.setTextSize(11); 
-			titleText.setPadding(50, 6, 0, 0);  
-			setTitle(poi.getName().toUpperCase()+"\n"+(int)poi.getDistance()+" m"); 
+			titleText.setPadding(45, 6, 0, 0);  
+			setTitle(poi.getTitle().toUpperCase()+"\n"+(int)poi.getDistance()+" m"); 
 		} 
 		public void draw(Canvas c) {
 			c.drawBitmap(bc, 0,0,p);
@@ -56,7 +56,7 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 			v.addView(titleText, new AbsoluteLayout.LayoutParams(170, 42, 0, 0)); 
 		}
 		public void setDistance(float dist) { 
-			setTitle(poi.getName().toUpperCase()+"\n"+(int)dist+" m");
+			setTitle(poi.getTitle().toUpperCase()+"\n"+(int)dist+" m");
 		}		
 	}
 	
@@ -75,17 +75,17 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 		public TouchStateOpened(DefaultPOIView v, POI poi) {
 			this.v = v;
 			this.poi = poi;
-			titleText = new TextView(getContext());  
+			titleText = new TextView(getContext());
 			titleText.setTextColor(Color.WHITE); 
 			titleText.setTextSize(11);
-			titleText.setPadding(50, 6, 0, 0);
+			titleText.setPadding(45, 6, 0, 0); 
 
 			dataText = new TextView(getContext()); 
 			dataText.setTextColor(Color.WHITE); 
 			dataText.setTextSize(11); 
-			dataText.setPadding(6, 6, 6, 6);
+			dataText.setPadding(6, 6, 6, 6); 
 			
-			setTitle(poi.getName().toUpperCase()+"\n"+(int)poi.getDistance()+" m"); 
+			setTitle(poi.getTitle().toUpperCase()+"\n"+(int)poi.getDistance()+" m"); 
 			setData(poi.getDescription());
 		}
 		public void draw(Canvas c) {
@@ -110,7 +110,7 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 		}
 		
 		public void setDistance(float dist) {
-			setTitle(poi.getName().toUpperCase()+"\n"+(int)dist+" m");
+			setTitle(poi.getTitle().toUpperCase()+"\n"+(int)dist+" m");
 		}
 	}
 
@@ -163,7 +163,7 @@ public class DefaultPOIView extends LinearLayout implements View.OnTouchListener
 		AbsoluteLayout.LayoutParams l = (AbsoluteLayout.LayoutParams)getLayoutParams();
 		l.width = 170;
 		l.height = 100; 
-		setLayoutParams(l);		
+		setLayoutParams(l);
 		stateTransitionTo(stateOpened);  
 	}
 	
