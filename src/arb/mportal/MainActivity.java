@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
 		
         locationListener = new LocationListenerImpl(new LocationReceivable() {
 			public void receiveNewLocation(Location l) {
-				User.getInstance().setUserLocation(l);
+				User.getInstance().setPoiRequestLocation(l);
 				setStatusText("Aktuellen Standort empfangen..."); 
 				lm.removeUpdates(locationListener);
 				startTasks();
@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
 		setStatusText("Starte AsyncTasks..."); 
 		queryAttempt++;
 		POILoadTask task = new POILoadTask(this);  
-		task.execute(new BoundingBox(User.getInstance().getUserLocation(), 0.5 * queryAttempt));
+		task.execute(new BoundingBox(User.getInstance().getPoiRequestLocation(), 0.5 * queryAttempt)); 
 	}
 	
 	public void setStatusText(String text) {

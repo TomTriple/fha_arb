@@ -12,8 +12,8 @@ import arb.mportal.views.DefaultPOIView;
 public class POI {
 	
 	private String name = "";
-	private float longitude = 0;
-	private float latitude = 0; 
+	private double longitude = 0;
+	private double latitude = 0; 
 	private Location location = null;
 	private float distance = 0.0f;
 	private Map<String, String> tags = new HashMap<String, String>(); 
@@ -58,16 +58,16 @@ public class POI {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public float getLongitude() {
+	public double getLongitude() {
 		return longitude;
 	}
-	public void setLongitude(float longitude) {
+	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
-	public float getLatitude() {
+	public double getLatitude() {
 		return latitude;
 	}
-	public void setLatitude(float latitude) {
+	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
 	public DefaultPOIView getView() {
