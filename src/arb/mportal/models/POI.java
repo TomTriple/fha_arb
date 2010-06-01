@@ -2,8 +2,10 @@ package arb.mportal.models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import android.location.Location;
 import arb.mportal.util.IEach;
@@ -18,6 +20,17 @@ public class POI {
 	private float distance = 0.0f;
 	private Map<String, String> tags = new HashMap<String, String>(); 
 	private DefaultPOIView view = null;
+	
+	private static Map<String,String> keyMap = new HashMap<String, String>();
+	
+	static {
+		keyMap.put("fee", "Gebühr");
+		keyMap.put("parking", "Parktyp");
+		keyMap.put("amenity", "Einrichtung");
+		keyMap.put("operator", "Betreiber");
+		keyMap.put("opening_hours", "Öffnungszeit");
+		keyMap.put("cuisine", "Küche");
+	}
 	
 	private static List<POI> all = new ArrayList<POI>(); 
 	
@@ -110,6 +123,9 @@ public class POI {
 	public String getTagDescription() {
 		return getTags().get("description"); 
 	}
+	public String getTagAmenity() {
+		return getTags().get("amenity"); 
+	}	
 	
 	
 	public String getDescription() {
@@ -117,25 +133,45 @@ public class POI {
 		int lines = 5; 
 		if(getTagStreet() != null) {
 			buf.append(getTagStreet());
+			getTags().remove("addr:street");
+			lines--;
 		}
 		if(getTagHousenumber() != null) {
 			buf.append(" " + getTagHousenumber());
+			getTags().remove("addr:housenumber");
+			lines--;
 		}
 		if(buf.toString().equals("") == false) {
 			buf.append("\n");
 			lines--;
 		}
-		if(getTagPostcode() != null) { 
-			buf.append(getTagPostcode() + "\n");
+		if(getTagAmenity() != null) {
+			buf.append("Einrichtung: " + getTagAmenity() + "\n");
+			getTags().remove("amenity"); 
 			lines--;
-		}
+		}		
 		if(getTagURL() != null && !getTagURL().equals("null") && !getTagURL().equals("")) { 
-			buf.append(getTags().get("url:official") + "\n");
+			buf.append("Web: " + getTags().get("url:official") + "\n");
+			getTags().remove("url:official");
 			lines--;
 		}
 		if(getTagDescription() != null && !getTagDescription().equals("null") && !getTagDescription().equals("")) {
-			buf.append(getTags().get("description") + "\n");   
-		}  
+			buf.append(getTags().get("description") + "\n"); 
+			getTags().remove("description");
+			lines--;
+		}
+			
+		
+		Set<String> keys = getTags().keySet();
+		Iterator<String> keyIterator = keys.iterator();
+		while(keyIterator.hasNext()) {
+			if(lines == 0)
+				break; 
+			String key = keyIterator.next();
+			buf.append(keyMap.get(key) + ": " + getTags().get(key) + "\n"); 
+			lines--;
+		}
+		
 		return buf.toString();
 	}
 	
@@ -162,6 +198,8 @@ public class POI {
 		String title = name;
 		if(title.equals(""))
 			title = getTags().get("amenity");
+		if(title == null)
+			return "---";
 		if(title.length() >= 15) {
 			return title.substring(0, 13) + "...";
 		}

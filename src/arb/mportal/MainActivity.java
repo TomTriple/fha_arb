@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-		    Toast.makeText(this, "Die Anwendung ist für den Landscape-Modus optimiert.", Toast.LENGTH_LONG).show();
+		    Toast.makeText(this, "Die Anwendung ist für den Landschafts-Modus optimiert.", Toast.LENGTH_LONG).show();
 		    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		} 
 		
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 			}
 		});  
         lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);  
-        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, locationListener);		
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);		
 	} 
 
 	

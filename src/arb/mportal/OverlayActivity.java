@@ -3,6 +3,7 @@ package arb.mportal;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -19,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AbsoluteLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import arb.mportal.models.POI;
 import arb.mportal.models.User;
 import arb.mportal.util.IEach;
@@ -43,7 +45,12 @@ public class OverlayActivity extends Activity {
     public void onCreate(Bundle icicle) { 
         
         super.onCreate(icicle);
-        
+		
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+		    Toast.makeText(this, "Die Anwendung ist für den Landschafts-Modus optimiert.", Toast.LENGTH_LONG).show();
+		    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} 
+		
         // clear the title-bar 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -58,7 +65,7 @@ public class OverlayActivity extends Activity {
         s.setCreationCallbacks(this); 
         contentView.addView(s, h, w); 
 
-        t = new TextView(this); 
+        t = new TextView(this);
         contentView.addView(t, new ViewGroup.LayoutParams(h, w));
 
         setContentView(contentView); 
@@ -69,7 +76,7 @@ public class OverlayActivity extends Activity {
 			}
 		});
         lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);  
-        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 / 25, 1, locationListener);
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 / 25, 1, locationListener);
         
         initialDrawing();
         startDrawingUpdates();        
@@ -83,7 +90,8 @@ public class OverlayActivity extends Activity {
 				while(true) { 
 					try {
 						for(int i = 0; i < POI.size(); i++) {
-							final POI p = POI.get(i); 
+							final POI p = POI.get(i);
+							final int imemo = i;
 							handler.post(new Runnable() {
 								public void run() { 
 									DefaultPOIView view = p.getView();
@@ -92,12 +100,27 @@ public class OverlayActivity extends Activity {
 									AbsoluteLayout.LayoutParams lp = (AbsoluteLayout.LayoutParams)view.getLayoutParams();
 									//lp.x = (int)zRot;  
 									// lp.y = (int)xRot + 65; 
-									double dx = Math.abs(User.getInstance().getUserLocation().getLongitude() - p.getLongitude());
-									double dy = Math.abs(User.getInstance().getUserLocation().getLatitude() - p.getLatitude());
-									double angle = 180 / Math.PI * Math.atan2(dx, dy);
+									double dx = p.getLongitude() - User.getInstance().getUserLocation().getLongitude();
+									double dy = p.getLatitude() - User.getInstance().getUserLocation().getLatitude();
+									// returns -PI..+PI
+									// android: dx, dy, default java: dy, dx !!!!!
+									double angle = Math.atan2(dx, dy);
+									// normalize angle to match 0°..360° 
+									if(angle < 0)
+										angle = Math.PI + (Math.PI + angle);
+									angle = Math.toDegrees(angle); 
 									double length = Math.sqrt(dx*dx + dy*dy); 
 									
-									// lp.x = (int)angle; 
+									//if(imemo == 3)
+									//	t.setText(String.valueOf(angle));
+									
+									// 45 ° sichtfeld ca. = 480px
+									//lp.x = (int)angle; 
+									double factor = 480 / 45; 
+									double offset = factor * (angle - 90); 
+									 
+									
+									lp.x = (int) Math.round(offset - factor * zRot) - 80; 
 
 									if(User.getInstance().getUserLocation() != null) {
 										float dist = User.getInstance().getUserLocation().distanceTo(p.getLocation());
@@ -107,7 +130,7 @@ public class OverlayActivity extends Activity {
 								}
 							});							
 						}
-						Thread.sleep(1000 / 15);
+						Thread.sleep(1000 / 5);
 					} catch(InterruptedException e) {
 						;
 					}					
@@ -122,7 +145,8 @@ public class OverlayActivity extends Activity {
 			public void onSensorChanged(SensorEvent e) {
 				zRot = e.values[0];
 				xRot = e.values[2];
-				//L.i(String.valueOf(xRot)); 
+				//L.i(String.valueOf(xRot));
+				//t.setText(String.valueOf(zRot));
 			}
 			public void onAccuracyChanged(Sensor arg0, int arg1) {
 				;
@@ -162,6 +186,5 @@ public class OverlayActivity extends Activity {
     public void surfaceDestroyed(SurfaceHolder holder) {
     	camera.stopPreview();
     	camera.release();
-    }  
-
+    }
 }
