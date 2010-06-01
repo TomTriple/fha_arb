@@ -16,30 +16,31 @@ import arb.mportal.models.POI;
 import arb.mportal.models.User;
 import arb.mportal.util.BoundingBox;
 
+
 public class MainActivity extends Activity {
 
 	private LocationManager lm = null;
 	private LocationListenerImpl locationListener = null;	
-	private TextView statusText = null; 
+	private TextView statusText = null;  
 	private int queryAttempt = 0; 
+	private POILoadTask task = null; 
 	
 	public void onCreate(Bundle bundle) {
+		super.onCreate(bundle);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 		    Toast.makeText(this, "Die Anwendung ist für den Landscape-Modus optimiert.", Toast.LENGTH_LONG).show();
 		    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		} 
 		
-		super.onCreate(bundle);
-		
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main); 
 		statusText = (TextView)findViewById(R.id.statusText);
 		statusText.setText("Starte...");
 		
         locationListener = new LocationListenerImpl(new LocationReceivable() {
 			public void receiveNewLocation(Location l) {
-				User.getInstance().setPoiRequestLocation(l);
+				User.getInstance().setUserLocation(l); 
 				setStatusText("Aktuellen Standort empfangen..."); 
 				lm.removeUpdates(locationListener);
 				startTasks();
@@ -50,11 +51,16 @@ public class MainActivity extends Activity {
 	} 
 
 	
+	public void onDestroy() {
+		super.onDestroy();
+		task.cancel(true);
+	}
+	
 	private void startTasks() {
 		setStatusText("Starte AsyncTasks..."); 
 		queryAttempt++;
-		POILoadTask task = new POILoadTask(this);  
-		task.execute(new BoundingBox(User.getInstance().getPoiRequestLocation(), 0.5 * queryAttempt)); 
+		task = new POILoadTask(this);  
+		task.execute(new BoundingBox(User.getInstance().getUserLocation(), 0.5 * queryAttempt));
 	}
 	
 	public void setStatusText(String text) {

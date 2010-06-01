@@ -5,7 +5,6 @@ import android.location.Location;
 public class User {
 
 	private Location userLocation = null;
-	private Location poiRequestLocation = null;
 	private static User user = null;
 	
 	private User() {}
@@ -25,13 +24,4 @@ public class User {
 	public void setUserLocation(Location userLocation) {
 		this.userLocation = userLocation;
 	}
-	
-	public Location getPoiRequestLocation() {
-		return poiRequestLocation;
-	}
-
-	public void setPoiRequestLocation(Location poiRequestLocation) {
-		this.poiRequestLocation = poiRequestLocation;
-	}	
-	
 }

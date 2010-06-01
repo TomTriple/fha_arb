@@ -65,8 +65,7 @@ public class OverlayActivity extends Activity {
   
         locationListener = new LocationListenerImpl(new LocationReceivable() {
 			public void receiveNewLocation(Location l) {
-				User.getInstance().setUserLocation(l);
-				L.i("neue location..."); 
+				User.getInstance().setUserLocation(l); 
 			}
 		});
         lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);  
@@ -77,9 +76,10 @@ public class OverlayActivity extends Activity {
     }
     
     
+
     private void startDrawingUpdates() { 
         Runnable drawingRunnable = new Runnable() {
-			public void run() {
+			public void run() { 
 				while(true) { 
 					try {
 						for(int i = 0; i < POI.size(); i++) {
@@ -90,13 +90,14 @@ public class OverlayActivity extends Activity {
 									if(view == null)
 										return;
 									AbsoluteLayout.LayoutParams lp = (AbsoluteLayout.LayoutParams)view.getLayoutParams();
-									lp.x = (int)zRot; 
-									//lp.y = (int)xRot + 65; 
-									/*double deltaLat = Math.abs(User.getInstance().getPoiRequestLocation().getLatitude() - p.getLatitude());
-									double deltaLon = Math.abs(User.getInstance().getPoiRequestLocation().getLongitude() - p.getLongitude());
-									double angle = 180 / Math.PI * Math.atan2(deltaLat, deltaLon);
-									double length = Math.sqrt(deltaLat * deltaLat + deltaLon * deltaLon);
-									*/
+									//lp.x = (int)zRot;  
+									// lp.y = (int)xRot + 65; 
+									double dx = Math.abs(User.getInstance().getUserLocation().getLongitude() - p.getLongitude());
+									double dy = Math.abs(User.getInstance().getUserLocation().getLatitude() - p.getLatitude());
+									double angle = 180 / Math.PI * Math.atan2(dx, dy);
+									double length = Math.sqrt(dx*dx + dy*dy); 
+									
+									// lp.x = (int)angle; 
 
 									if(User.getInstance().getUserLocation() != null) {
 										float dist = User.getInstance().getUserLocation().distanceTo(p.getLocation());
@@ -106,7 +107,7 @@ public class OverlayActivity extends Activity {
 								}
 							});							
 						}
-						Thread.sleep(1000 / 15);  
+						Thread.sleep(1000 / 15);
 					} catch(InterruptedException e) {
 						;
 					}					
@@ -115,7 +116,6 @@ public class OverlayActivity extends Activity {
 		};
 		Thread drawingThread = new Thread(drawingRunnable);
 		drawingThread.start();
-
  
         SensorManager sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE); 
         SensorEventListener listener = new SensorEventListener() {
@@ -137,10 +137,10 @@ public class OverlayActivity extends Activity {
     	POI.eachPoi(new IEach() { 
 			public void each(Object item, int index) {
 				POI p = (POI)item; 
-	    		p.setDistance(User.getInstance().getPoiRequestLocation().distanceTo(p.getLocation()));
+	    		p.setDistance(User.getInstance().getUserLocation().distanceTo(p.getLocation()));
 	    		DefaultPOIView t = new DefaultPOIView(OverlayActivity.this, p); 
 	    		p.setView(t);
-	    		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(170, 42, 0, 40 * index);
+	    		AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(170, 42, 0, 120);
 	    		contentView.addView(t, lp);				
 			}
 		});
