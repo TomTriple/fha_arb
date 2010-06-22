@@ -20,17 +20,22 @@ public class POI {
 	private float distance = 0.0f;
 	private Map<String, String> tags = new HashMap<String, String>(); 
 	private DefaultPOIView view = null;
+	private String amenityBuffer = "";
+	private String descriptionBuffer = "";	
 	
 	private static Map<String,String> keyMap = new HashMap<String, String>();
 	
 	static {
 		keyMap.put("fee", "Gebühr");
+		keyMap.put("wheelchair", "Rollstuhl");
+		keyMap.put("male", "Männlich");
+		keyMap.put("female", "Weiblich");
 		keyMap.put("parking", "Parktyp");
 		keyMap.put("amenity", "Einrichtung");
 		keyMap.put("operator", "Betreiber");
 		keyMap.put("opening_hours", "Öffnungszeit");
 		keyMap.put("cuisine", "Küche");
-	}
+	}	
 	
 	private static List<POI> all = new ArrayList<POI>(); 
 	
@@ -129,6 +134,8 @@ public class POI {
 	
 	
 	public String getDescription() {
+		if(!descriptionBuffer.equals(""))
+			return descriptionBuffer;
 		StringBuffer buf = new StringBuffer();
 		int lines = 5; 
 		if(getTagStreet() != null) {
@@ -146,7 +153,8 @@ public class POI {
 			lines--;
 		}
 		if(getTagAmenity() != null) {
-			buf.append("Einrichtung: " + getTagAmenity() + "\n");
+			amenityBuffer = getTagAmenity().substring(0,1).toUpperCase()+getTagAmenity().substring(1); 
+			buf.append("Einrichtung: " + amenityBuffer + "\n");  
 			getTags().remove("amenity"); 
 			lines--;
 		}		
@@ -172,7 +180,8 @@ public class POI {
 			lines--;
 		}
 		
-		return buf.toString();
+		descriptionBuffer = buf.toString();
+		return descriptionBuffer;
 	}
 	
 	
@@ -197,14 +206,13 @@ public class POI {
 	public String getTitle() {
 		String title = name;
 		if(title.equals(""))
-			title = getTags().get("amenity");
+			title = amenityBuffer;
 		if(title == null)
 			return "---";
 		if(title.length() >= 15) {
 			return title.substring(0, 13) + "...";
 		}
 		return title;
-		  
 	}
 
 	

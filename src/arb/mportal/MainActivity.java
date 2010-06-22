@@ -8,13 +8,18 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import arb.mportal.models.POI;
 import arb.mportal.models.User;
 import arb.mportal.util.BoundingBox;
+
 
 
 public class MainActivity extends Activity {
@@ -32,7 +37,7 @@ public class MainActivity extends Activity {
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 		    Toast.makeText(this, "Die Anwendung ist für den Landschafts-Modus optimiert.", Toast.LENGTH_LONG).show();
 		    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		} 
+		}
 		
 		setContentView(R.layout.main); 
 		statusText = (TextView)findViewById(R.id.statusText);
@@ -47,8 +52,22 @@ public class MainActivity extends Activity {
 			}
 		});  
         lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);  
-        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);		
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
+        
+        ImageView imageView = (ImageView) findViewById(R.id.weltbildLogo);
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				openURL("http://www.weltbild.de");
+				return false;
+			}
+		});       
 	} 
+	
+	
+	private void openURL(String url) {
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));  
+		startActivity(intent); 
+	}	
 
 	
 	public void onDestroy() {
